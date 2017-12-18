@@ -1,7 +1,7 @@
 local grid = require('grid')
 
 function lovr.load()
-  floor = grid.new(8, 8, .5, { 1, .25, .5, .25 }, { 30, 30, 30 })
+  floor = grid.new(8, 8, .5, { 1, .25, .5, .25 }, { .12, .12, .12 })
 end
 
 function lovr.draw()
