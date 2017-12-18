@@ -15,38 +15,52 @@ function grid.new(width, depth, size, pattern, fill)
   self.size = size or 1
   self.pattern = pattern or { 1 }
   self.fill = fill or nil
+
+  local vertexFormat = {
+    { 'lovrPosition', 'float', 3 },
+    { 'lovrVertexColor', 'byte', 4 }
+  }
+
+  local vertices = {}
+  local w, d, s = round(self.width / 2, self.size), round(self.depth / 2, self.size), self.size
+
+  for x = -w, w + epsilon, s do
+    local i = 1 + round(x / s) % #self.pattern
+    table.insert(vertices, { x, 0, -d, 255, 255, 255, 255 * self.pattern[i] })
+    table.insert(vertices, { x, 0, d, 255, 255, 255, 255 * self.pattern[i] })
+  end
+
+  for z = -d, d + epsilon, s do
+    local i = 1 + round(z / s) % #self.pattern
+    table.insert(vertices, { -w, 0, z, 255, 255, 255, 255 * self.pattern[i] })
+    table.insert(vertices, { w, 0, z, 255, 255, 255, 255 * self.pattern[i] })
+  end
+
+  self.mesh = lovr.graphics.newMesh(vertexFormat, vertices, 'lines', 'static')
+  print(self.mesh:getVertex(1))
+
   return self
 end
 
 function grid:draw(...)
-  local r, g, b, a = lovr.graphics.getColor()
   local w, d, s = round(self.width / 2, self.size), round(self.depth / 2, self.size), self.size
 
   lovr.graphics.push()
   lovr.graphics.transform(...)
 
   if self.fill then
+    local r, g, b, a = lovr.graphics.getColor()
     lovr.graphics.setColor(self.fill)
     lovr.graphics.push()
     lovr.graphics.scale(w * 2, d * 2)
     lovr.graphics.plane('fill', 0, -epsilon, 0, 1, math.pi / 2, 1, 0, 0)
     lovr.graphics.pop()
+    lovr.graphics.setColor(r, g, b, a)
   end
 
-  for x = -w, w + epsilon, s do
-    local i = 1 + round(x / s) % #self.pattern
-    lovr.graphics.setColor(r, g, b, a * self.pattern[i])
-    lovr.graphics.line(x, 0, -d, x, 0, d)
-  end
-
-  for z = -d, d + epsilon, s do
-    local i = 1 + round(z / s) % #self.pattern
-    lovr.graphics.setColor(r, g, b, a * self.pattern[i])
-    lovr.graphics.line(-w, 0, z, w, 0, z)
-  end
+  self.mesh:draw()
 
   lovr.graphics.pop()
-  lovr.graphics.setColor(r, g, b, a)
 end
 
 return grid
