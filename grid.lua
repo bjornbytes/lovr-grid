@@ -37,7 +37,6 @@ function grid.new(width, depth, size, pattern, fill)
   end
 
   self.mesh = lovr.graphics.newMesh(vertexFormat, vertices, 'lines', 'static')
-  print(self.mesh:getVertex(1))
 
   return self
 end
